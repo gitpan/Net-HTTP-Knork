@@ -355,7 +355,7 @@ Net::HTTP::Knork::Request - HTTP request object from SPORE env hash
 
 =head1 VERSION
 
-version 0.08
+version 0.09
 
 =head1 SYNOPSIS
 
@@ -458,7 +458,7 @@ Get the content that will be posted
 
 =head1 AUTHOR
 
-Emmanuel Peroumalnaik
+Emmanuel Peroumalnaïk
 
 =head1 COPYRIGHT AND LICENSE
 

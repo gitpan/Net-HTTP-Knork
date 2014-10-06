@@ -22,12 +22,12 @@ has 'client' => ( is => 'lazy', );
 # option that allows one to pass optional parameters that are not specified
 # in the spore 'optional_params' section for a given method
 
-has 'lax_optionals' => ( is => 'rw', default => sub { 0 } );
+has 'lax_optionals' => ( is => 'rw', default => sub {0} );
 
 has 'base_url' => (
-    is       => 'rw',
-    lazy     => 1,
-    builder  => sub {
+    is      => 'rw',
+    lazy    => 1,
+    builder => sub {
         return $_[0]->spec->{base_url};
     }
 );
@@ -51,7 +51,7 @@ has 'spec' => (
         my $spec;
 
         # it could be a file
-        try { 
+        try {
             open my $fh, '<', $json_spec or croak 'Cannot read the spec file';
             local $/ = undef;
             binmode $fh;
@@ -59,24 +59,25 @@ has 'spec' => (
             close $fh;
         }
         catch {
-            try { 
+            try {
                 $spec = from_json($json_spec);
             }
+
             # it is not json, so we are returning the string as is
-            catch { 
-                $spec = $json_spec; 
+            catch {
+                $spec = $json_spec;
             };
         };
         return $spec;
     }
 );
 
-has 'default_params' => ( 
-    is => 'rw', 
-    default => sub { {} },
+has 'default_params' => (
+    is        => 'rw',
+    default   => sub { {} },
     predicate => 1,
-    clearer => 1,
-    writer => 'set_default_params',
+    clearer   => 1,
+    writer    => 'set_default_params',
 );
 
 has 'spore_rx' => (
@@ -167,13 +168,13 @@ sub make_sub_from_spec {
     return sub {
         my $self = shift;
         $self->clear_request;
-        my $ref_param_spec  = shift // {};
+        my $ref_param_spec = shift // {};
         my %param_spec = %{$ref_param_spec};
-        if ($self->has_default_params) { 
-            foreach my $d_param (keys (%{$self->default_params})) { 
+        if ( $self->has_default_params ) {
+            foreach my $d_param ( keys( %{ $self->default_params } ) ) {
                 $param_spec{$d_param} = $self->default_params->{$d_param};
             }
-        } 
+        }
         my %method_args = %{$meth_spec};
         my $method      = $method_args{method};
         my $payload =
@@ -181,7 +182,7 @@ sub make_sub_from_spec {
           ? delete $param_spec{spore_payload}
           : delete $param_spec{payload};
 
-        if ($method_args{required_payload} && !$payload) { 
+        if ( $method_args{required_payload} && !$payload ) {
             croak "this method requires a payload and no payload is provided";
         }
         if ( $payload
@@ -195,7 +196,8 @@ sub make_sub_from_spec {
         if ( $method_args{required_params} ) {
             foreach my $required ( @{ $method_args{required_params} } ) {
                 if ( !grep { $required eq $_ } keys %param_spec ) {
-                    croak "Parameter '$required' is marked as required but is missing";
+                    croak
+                      "Parameter '$required' is marked as required but is missing";
                 }
             }
         }
@@ -209,10 +211,10 @@ sub make_sub_from_spec {
             push @$params, $_, delete $param_spec{$_}
               if ( defined( $param_spec{$_} ) );
         }
-        if (%param_spec) { 
-            if ($self->lax_optionals) { 
-                foreach (keys %param_spec) {
-                    push @$params, $_, delete $param_spec{$_}
+        if (%param_spec) {
+            if ( $self->lax_optionals ) {
+                foreach ( keys %param_spec ) {
+                    push @$params, $_, delete $param_spec{$_};
                 }
             }
         }
@@ -254,15 +256,16 @@ sub perform_request {
 }
 
 sub generate_response {
-    my $self         = shift;
-    my $raw_response = shift;
-    my $prev_response = shift;
-    my $knork_response =  $self->request->new_response(
+    my $self           = shift;
+    my $raw_response   = shift;
+    my $prev_response  = shift;
+    my $knork_response = $self->request->new_response(
         $raw_response->code, $raw_response->message, $raw_response->headers,
         $raw_response->content
     );
-    if (defined($prev_response)) { 
-        $knork_response->raw_body($prev_response->content) unless defined (($knork_response->raw_body));
+    if ( defined($prev_response) ) {
+        $knork_response->raw_body( $prev_response->content )
+          unless defined( ( $knork_response->raw_body ) );
     }
     return $knork_response;
 }
@@ -283,7 +286,7 @@ Net::HTTP::Knork - Lightweight implementation of Spore specification
 
 =head1 VERSION
 
-version 0.08
+version 0.09
 
 =head1 SYNOPSIS 
 
@@ -313,21 +316,32 @@ version 0.08
 =head1 DESCRIPTION 
 
 Net::HTTP::Knork is a module that aims to be compatible with L<the Spore specification|https://github.com/SPORE/specifications/blob/master/spore_description.pod>. 
-So it is like L<Net::HTTP::Spore> but with some differences: 
+So it is like L<Net::HTTP::Spore> but with some differences. 
 
-=over
+=head2 Moo !
 
-=item Moo instead of Moose 
+When I was working with Net::HTTP::Spore, I found it hard to get around all the magic done with Moose. 
+So this implementation aims at having something more lightweight.
 
-=item specifications can be either JSON (a string or a file) or a plain Perl hash
+=head2 Specifications
 
-=item specifications are validated with L<Data::Rx>
+Specifications can be written either in a JSON file, string, or as a pure Perl hash.
+On top of that, every specification passed is validated against the Spore specification, using L<Data::Rx>.
 
-=item no real middleware support as in Spore, though there are some workarounds
+=head2 No middlewares 
 
-=item responses are L<HTTP::Response> objects
+This module does not provide middlewares as in L<Net::HTTP::Spore>, but there are some ways around it that should fit basic needs. 
+See Middlewares below
 
-=back
+=head2 HTTP::Response compliant 
+
+All the responses returned by Knork are objects from a class extending L<HTTP::Response>. 
+This means that you can basically manipulate any response returned by a Knork client as an HTTP::Response.
+
+=head2 Always check your HTTP codes !
+
+No assumptions are made regarding the responses you may receive from an API. 
+It means that, contrary to L<Net::HTTP::Spore>, the code won't just die if the API returns a 4XX. This also implies that you should always check the responses returned. 
 
 =head1 METHODS
 
@@ -345,12 +359,22 @@ Creates a new Knork object.
 
 Other constructor options: 
 
-- default_params:  hash specifying default parameters to pass on every requests.
+=over
+
+=item default_params:  
+
+hash specifying default parameters to pass on every requests.
 
     # pass foo=bar on every request 
     my $client = Net::HTTP::Knork->new(spec => 'some_file.json', default_params => {foo => bar}); 
 
-- http_options : options to pass to the L<LWP::UserAgent> used as a backend for Knork. 
+=item client: 
+a L<LWP::UserAgent> HTTP client. Automatically created if not passed. 
+
+=item http_options: 
+options to pass to the L<LWP::UserAgent> used as a backend for Knork. 
+
+=back
 
 =item make_sub_from_spec 
 
@@ -411,11 +435,46 @@ The last middleware applicated will always be the first executed.
 
 =back
 
+=head1 TESTING
+
+As a HTTP client can be specified as a parameter when building a Net::HTTP::Knork client, this means that you can use L<Test::LWP::UserAgent> to test your client. This is also how tests for Net::HTTP::Knork are implemented. 
+
+    use Test::More;
+    use Test::LWP::UserAgent;
+    use Net::HTTP::Knork;
+    use Net::HTTP::Knork::Response;
+    my $tua = Test::LWP::UserAgent->new;
+    $tua->map_response(
+        sub {
+            my $req = shift;
+            my $uri_path = $req->uri->path;
+            if ( $req->method eq 'GET' ) {
+                return ( $uri_path eq '/show/foo' );
+            }
+        },
+        Net::HTTP::Knork::Response->new('200','OK')
+    );
+    my $client = Net::HTTP::Knork->new(
+        spec => {
+            base_url => 'http://example.com',
+            name     => 'test',
+            methods  => [
+                {   get_user_info => { method => 'GET', path => '/show/:user' }
+                }
+            ]
+        },
+        client => $tua
+    );
+
+
+    my $resp = $client->get_user_info( { user => 'foo' } );
+    is( $resp->code, '200', 'our user is correctly set to foo' );
+
 =head1 TODO 
 
-=over
-
 This is still early alpha code but there are still some things missing : 
+
+=over
 
 =item debug mode
 
@@ -433,9 +492,13 @@ This code is early alpha, so there will be a whole bucket of bugs.
 
 Many thanks to Franck Cuny, the originator of L<Net::HTTP::Spore>. Some parts of this module borrow code from his module. 
 
+=head1 SEE ALSO 
+
+L<Net::HTTP::Spore>
+
 =head1 AUTHOR
 
-Emmanuel Peroumalnaik
+Emmanuel Peroumalnaïk
 
 =head1 COPYRIGHT AND LICENSE
 

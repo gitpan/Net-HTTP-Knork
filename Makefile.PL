@@ -15,7 +15,7 @@ install_share dist => "share";
 
 my %WriteMakefileArgs = (
   "ABSTRACT" => "Lightweight implementation of Spore specification",
-  "AUTHOR" => "Emmanuel Peroumalnaik",
+  "AUTHOR" => "Emmanuel Peroumalna\x{ef}k",
   "CONFIGURE_REQUIRES" => {
     "ExtUtils::MakeMaker" => "6.30",
     "File::ShareDir::Install" => "0.06"
@@ -43,7 +43,7 @@ my %WriteMakefileArgs = (
     "Try::Tiny" => 0,
     "URI" => 0
   },
-  "VERSION" => "0.08",
+  "VERSION" => "0.09",
   "test" => {
     "TESTS" => "t/*.t"
   }

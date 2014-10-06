@@ -51,11 +51,11 @@ Net::HTTP::Knork::Role::Middleware - Role implementing middleware capabilities f
 
 =head1 VERSION
 
-version 0.08
+version 0.09
 
 =head1 AUTHOR
 
-Emmanuel Peroumalnaik
+Emmanuel Peroumalnaïk
 
 =head1 COPYRIGHT AND LICENSE
 
