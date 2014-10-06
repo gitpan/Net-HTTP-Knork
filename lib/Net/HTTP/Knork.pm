@@ -1,6 +1,6 @@
 package Net::HTTP::Knork;
 
-# ABSTRACT: Spore without the whistles and the bells
+# ABSTRACT: Lightweight implementation of Spore specification
 use Moo;
 use Sub::Install;
 use Try::Tiny;
@@ -279,11 +279,11 @@ __END__
 
 =head1 NAME
 
-Net::HTTP::Knork - Spore without the whistles and the bells
+Net::HTTP::Knork - Lightweight implementation of Spore specification
 
 =head1 VERSION
 
-version 0.07
+version 0.08
 
 =head1 SYNOPSIS 
 
@@ -324,6 +324,44 @@ So it is like L<Net::HTTP::Spore> but with some differences:
 =item specifications are validated with L<Data::Rx>
 
 =item no real middleware support as in Spore, though there are some workarounds
+
+=item responses are L<HTTP::Response> objects
+
+=back
+
+=head1 METHODS
+
+=over
+
+=item new 
+
+Creates a new Knork object.  
+
+    my $client = Net::HTTP::Knork->new(spec => '/some/file.json');
+    # or 
+    my $client = Net::HTTP::Knork->new(spec => $a_perl_hash); 
+    # or 
+    my $client = Net::HTTP::Knork->new($spec => $a_json_object);
+
+Other constructor options: 
+
+- default_params:  hash specifying default parameters to pass on every requests.
+
+    # pass foo=bar on every request 
+    my $client = Net::HTTP::Knork->new(spec => 'some_file.json', default_params => {foo => bar}); 
+
+- http_options : options to pass to the L<LWP::UserAgent> used as a backend for Knork. 
+
+=item make_sub_from_spec 
+
+Creates a new Knork sub from a snippet of spec.
+You might want to do that if you want to create new subs with parameters you can get on runtime, while maintaining all the benefits of using Knork. 
+
+    my $client = Net::HTTP::Knork->new(spec => '/some/file.json');
+    my $response = $client->get_foo_url(); 
+    my $foo_url = $response->body->{foo_url}; 
+    my $post_foo = $client->make_sub_from_spec({method => 'POST', path => $foo_url});
+    $client->$post_foo(payload => { bar => 'baz' });
 
 =back
 
@@ -373,39 +411,17 @@ The last middleware applicated will always be the first executed.
 
 =back
 
-=head1 METHODS
+=head1 TODO 
 
 =over
 
-=item new 
+This is still early alpha code but there are still some things missing : 
 
-Creates a new Knork object.  
+=item debug mode
 
-    my $client = Net::HTTP::Knork->new(spec => '/some/file.json');
-    # or 
-    my $client = Net::HTTP::Knork->new(spec => $a_perl_hash); 
-    # or 
-    my $client = Net::HTTP::Knork->new($spec => $a_json_object);
+=item more tests 
 
-Other constructor options: 
-
-  - default_params:  hash specifying default parameters to pass on every requests.
-
-    # pass foo=bar on every request 
-    my $client = Net::HTTP::Knork->new(spec => 'some_file.json', default params => {foo => bar}); 
-
-   - http_options : ptions to pass to the L<LWP::UserAgent> used as a backend for Knork. 
-
-=item make_sub_from_spec 
-
-Creates a new Knork sub from a snippet of spec.
-You might want to do that if you want to create new subs with parameters you can get on runtime, while maintaining all the benefits of using Knork. 
-
-    my $client = Net::HTTP::Knork->new(spec => '/some/file.json');
-    my $response = $client->get_foo_url(); 
-    my $foo_url = $response->body->{foo_url}; 
-    my $post_foo = $client->make_sub_from_spec({method => 'POST', path => '/foo'});
-    $client->$post_foo(payload => { bar => baz });
+=item a real life usage
 
 =back
 
@@ -415,11 +431,11 @@ This code is early alpha, so there will be a whole bucket of bugs.
 
 =head1 ACKNOWLEDGEMENTS 
 
-Thank you to Franck Cuny, the originator of L<Net::HTTP::Spore>. Some parts of this module borrow code from his module. 
+Many thanks to Franck Cuny, the originator of L<Net::HTTP::Spore>. Some parts of this module borrow code from his module. 
 
 =head1 AUTHOR
 
-Emmanuel "BHS_error" Peroumalnaik
+Emmanuel Peroumalnaik
 
 =head1 COPYRIGHT AND LICENSE
 

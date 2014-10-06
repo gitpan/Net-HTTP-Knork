@@ -1,6 +1,6 @@
 package Net::HTTP::Knork::Request;
 
-# ABSTRACT: Net::HTTP::Knork::Request - Portable HTTP request object from SPORE env hash
+# ABSTRACT: HTTP request object from SPORE env hash
 
 use Moo;
 use Carp;
@@ -351,11 +351,11 @@ __END__
 
 =head1 NAME
 
-Net::HTTP::Knork::Request - Net::HTTP::Knork::Request - Portable HTTP request object from SPORE env hash
+Net::HTTP::Knork::Request - HTTP request object from SPORE env hash
 
 =head1 VERSION
 
-version 0.07
+version 0.08
 
 =head1 SYNOPSIS
 
@@ -458,7 +458,7 @@ Get the content that will be posted
 
 =head1 AUTHOR
 
-Emmanuel "BHS_error" Peroumalnaik
+Emmanuel Peroumalnaik
 
 =head1 COPYRIGHT AND LICENSE
 

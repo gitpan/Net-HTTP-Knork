@@ -1,4 +1,5 @@
 package Net::HTTP::Knork::Role::Middleware; 
+# ABSTRACT: Role implementing middleware capabilities for Knork main class
 use Moo::Role; 
 use Carp;
 use Class::Method::Modifiers qw/install_modifier/;
@@ -46,15 +47,15 @@ __END__
 
 =head1 NAME
 
-Net::HTTP::Knork::Role::Middleware
+Net::HTTP::Knork::Role::Middleware - Role implementing middleware capabilities for Knork main class
 
 =head1 VERSION
 
-version 0.07
+version 0.08
 
 =head1 AUTHOR
 
-Emmanuel "BHS_error" Peroumalnaik
+Emmanuel Peroumalnaik
 
 =head1 COPYRIGHT AND LICENSE
 

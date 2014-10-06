@@ -73,7 +73,7 @@ Net::HTTP::Knork::Response - Portable HTTP Response object for SPORE response
 
 =head1 VERSION
 
-version 0.07
+version 0.08
 
 =head1 SYNOPSIS
 
@@ -203,7 +203,7 @@ The third and final element is the body
 
 =head1 AUTHOR
 
-Emmanuel "BHS_error" Peroumalnaik
+Emmanuel Peroumalnaik
 
 =head1 COPYRIGHT AND LICENSE
 
